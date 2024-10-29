@@ -9,6 +9,7 @@ namespace Garawell
         public static class Numbers
         {
             public const float CELL_SIZE = 1f;
+            public const float PLACEMENT_THRESHOLD = .45f;
         }
-}
+    }
 }

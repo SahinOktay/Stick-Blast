@@ -41,8 +41,13 @@ namespace Garawell
             {
                 EditorGUILayout.LabelField("Connection " + i);
                 EditorGUILayout.BeginHorizontal();
-                _connections[i].firstPoint = EditorGUILayout.Vector2IntField("firstPoint ", _connections[i].firstPoint);
-                _connections[i].secondPoint = EditorGUILayout.Vector2IntField("secondPoint", _connections[i].secondPoint);
+
+                _connections[i] = new SingleConnection()
+                {
+                    firstPoint = EditorGUILayout.Vector2IntField("firstPoint ", _connections[i].firstPoint),
+                    secondPoint = EditorGUILayout.Vector2IntField("secondPoint", _connections[i].secondPoint)
+                };
+
                 EditorGUILayout.EndHorizontal();
 
                 if (
@@ -141,11 +146,5 @@ namespace Garawell
                 DestroyImmediate(newBlock);
             }
         }
-    }
-
-    public class SingleConnection
-    {
-        public Vector2Int firstPoint;
-        public Vector2Int secondPoint;
     }
 }
