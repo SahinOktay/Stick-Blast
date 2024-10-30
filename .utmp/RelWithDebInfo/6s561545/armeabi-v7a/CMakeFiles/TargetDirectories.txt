@@ -1,0 +1,5 @@
+C:/Users/oktay/Documents/GitHub/Stick-Blast/.utmp/RelWithDebInfo/6s561545/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/oktay/Documents/GitHub/Stick-Blast/.utmp/RelWithDebInfo/6s561545/armeabi-v7a/CMakeFiles/rebuild_cache.dir
+C:/Users/oktay/Documents/GitHub/Stick-Blast/.utmp/RelWithDebInfo/6s561545/armeabi-v7a/FramePacing/CMakeFiles/swappywrapper.dir
+C:/Users/oktay/Documents/GitHub/Stick-Blast/.utmp/RelWithDebInfo/6s561545/armeabi-v7a/FramePacing/CMakeFiles/edit_cache.dir
+C:/Users/oktay/Documents/GitHub/Stick-Blast/.utmp/RelWithDebInfo/6s561545/armeabi-v7a/FramePacing/CMakeFiles/rebuild_cache.dir

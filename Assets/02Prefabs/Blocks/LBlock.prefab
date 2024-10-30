@@ -51,6 +51,11 @@ MonoBehaviour:
     point2: {fileID: 223722844833754325}
   - point1: {fileID: 7343659668302238183}
     point2: {fileID: 5747183530612812042}
+  connections:
+  - firstPoint: {x: 0, y: 0}
+    secondPoint: {x: 0, y: 1}
+  - firstPoint: {x: 0, y: 0}
+    secondPoint: {x: 1, y: 0}
 --- !u!1001 &1234959290362209545
 PrefabInstance:
   m_ObjectHideFlags: 0

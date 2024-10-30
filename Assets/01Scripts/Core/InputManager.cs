@@ -10,7 +10,7 @@ public class InputManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonUp(0)) TouchRelease?.Invoke();
         if (Input.GetMouseButton(0)) TouchMoved?.Invoke(Input.mousePosition);
+        if (Input.GetMouseButtonUp(0)) TouchRelease?.Invoke();
     }
 }

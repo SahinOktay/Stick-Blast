@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace Garawell
         [SerializeField] private Vector2Int gridSize;
 
         private GameObject nodeParent, connectionParent;
+        private List<Vector2Int> _blastCoordinates = new();
 
         private Cell[][] _cells;
         private Dictionary<SingleConnection, GridConnection> _connections;
@@ -105,11 +107,8 @@ namespace Garawell
                                 lastTwoVerticalConnections[0],
                                 lastTwoVerticalConnections[1]
                             },
-                            Instantiate(cellCenter, currentCellCenter, Quaternion.identity),
-                            new Vector2Int(x - 1, y - 1)
+                            Instantiate(cellCenter, currentCellCenter, Quaternion.identity)
                         );
-
-                        newCell.CellFilled += OnCellFill;
 
                         cellList[^1].Add(newCell);
 
@@ -123,7 +122,7 @@ namespace Garawell
             _cells = cellList.Select(item => item.ToArray()).ToArray();
         }
 
-        private void OnCellFill(Vector2Int pos)
+        private void CheckBlast(Vector2Int pos)
         {
             bool horizontalBlast = true, verticalBlast = true;
 
@@ -137,30 +136,21 @@ namespace Garawell
 
             if (horizontalBlast)
                 for (int x = 0; x < _cells[pos.y].Length; x++)
-                {
                     _cells[pos.y][x].ClearCell();
-                    if (pos.y > 0)
-                        _cells[pos.y - 1][x].CheckExistingConnections();
-
-                    if (pos.y < _cells.Length - 1)
-                        _cells[pos.y + 1][x].CheckExistingConnections();
-                }
 
             if (verticalBlast)
                 for (int y = 0; y < _cells.Length; y++)
-                {
                     _cells[y][pos.x].ClearCell();
-                }
 
             if (horizontalBlast)
             {
                 for (int x = 0; x < _cells[pos.y].Length; x++)
                 {
                     if (pos.y > 0)
-                        _cells[pos.y - 1][x].CheckExistingConnections();
+                        _cells[pos.y - 1][x].CheckFillStatus();
 
                     if (pos.y < _cells.Length - 1)
-                        _cells[pos.y + 1][x].CheckExistingConnections();
+                        _cells[pos.y + 1][x].CheckFillStatus();
                 }
             }
 
@@ -169,12 +159,57 @@ namespace Garawell
                 for (int y = 0; y < _cells.Length; y++)
                 {
                     if (pos.x > 0)
-                    _cells[y][pos.x - 1].CheckExistingConnections();
+                    _cells[y][pos.x - 1].CheckFillStatus();
 
                     if (pos.x < _cells[y].Length - 1)
-                        _cells[y][pos.x + 1].CheckExistingConnections();
+                        _cells[y][pos.x + 1].CheckFillStatus();
                 }
             }
+        }
+
+        private void OnPlacementComplete(ButtonEventTrigger button, PlacableBlock block)
+        {
+            for (int i = 0; i < _blastCoordinates.Count; i++)
+                CheckBlast(_blastCoordinates[i]);
+        }
+
+        public bool HasAnyAvailableSpot(PlacableBlock block)
+        {
+            SingleConnection currentConToCheck;
+            bool hasAvailableSpot = false;
+            for (int y = 0; y <= gridSize.y; y++)
+            {
+                for (int x = 0; x <= gridSize.x; x++)
+                {
+                    hasAvailableSpot = false;
+                    for (int i = 0; i < block.connections.Length; i++)
+                    {
+                        currentConToCheck = new SingleConnection()
+                        {
+                            firstPoint = new Vector2Int(x, y) + block.connections[i].firstPoint,
+                            secondPoint = new Vector2Int(x, y) + block.connections[i].secondPoint
+                        };
+
+                        if (!_connections.ContainsKey(currentConToCheck))
+                        {
+                            hasAvailableSpot = false;
+                            break;
+                        }
+
+                        if (_connections[currentConToCheck].IsConnected)
+                        {
+                            hasAvailableSpot = false;
+                            break;
+                        }
+
+                        hasAvailableSpot = true;
+                    }
+
+                    if (hasAvailableSpot) return true;
+                }
+            }
+
+            return false;
         }
 
         public void DisablePreviews()
@@ -183,8 +218,9 @@ namespace Garawell
                 con.SetPreview(false);
         }
 
-        public bool PlaceBlock(PlacableBlock block)
+        public bool PlaceBlock(PlacableBlock block, out int filledBlocks)
         {
+            filledBlocks = 0;
             DisablePreviews();
             HashSet<GridConnection> placementConnections = CheckPlacement(block, false, out Vector3 offset);
             if (placementConnections.Count == 0) return false;
@@ -192,7 +228,19 @@ namespace Garawell
             foreach (GridConnection con in placementConnections)
                 con.Connect();
 
+            block.Placed += OnPlacementComplete;
             block.Place(placementConnections, -offset);
+
+            _blastCoordinates.Clear();
+            for (int y = 0; y < _cells.Length; y++)
+                for (int x = 0; x < _cells[y].Length; x++)
+                {
+                    if (_cells[y][x].CheckFillStatus())
+                    {
+                        filledBlocks++;
+                        _blastCoordinates.Add(new Vector2Int(x, y));
+                    }
+                }
 
             return true;
         }
@@ -269,6 +317,7 @@ namespace Garawell
     }
 }
 
+[Serializable]
 public struct SingleConnection
 {
     public Vector2Int firstPoint;

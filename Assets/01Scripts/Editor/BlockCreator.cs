@@ -141,6 +141,7 @@ namespace Garawell
 
                 PlacableBlock placableBlock = newBlock.AddComponent<PlacableBlock>();
                 placableBlock.nodePoints = connectionPoints.ToArray();
+                placableBlock.connections = _connections.ToArray();
 
                 PrefabUtility.SaveAsPrefabAsset(newBlock, prefabFolderPath + _prefabName + ".prefab");
                 DestroyImmediate(newBlock);

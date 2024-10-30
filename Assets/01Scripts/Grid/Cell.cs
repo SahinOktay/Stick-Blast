@@ -2,85 +2,59 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Garawell
 {
     public class Cell
     {
+        private bool _isFilled = false;
         private GameObject _cellCenter;
-        private int _connectedCount = 0;
         private List<GridConnection> _connections;
-        private Vector2Int _pos;
 
-        public Action<Vector2Int> CellFilled;
+        public bool IsFilled => !_connections.Any(item => !item.IsConnected);
 
-        public bool IsFilled => _connectedCount == _connections.Count;
-
-        public Cell(List<GridConnection> connections, GameObject center, Vector2Int pos)
+        public Cell(List<GridConnection> connections, GameObject center)
         {
             _cellCenter = center;
             _connections = connections;
-            _pos = pos;
 
             _cellCenter.SetActive(false);
-            for (int i = 0; i < _connections.Count; i++) 
-            {
-                _connections[i].Connected += OnConnected;
-            }
-        }
-
-        private void OnConnected(GridConnection connection)
-        {
-            _connectedCount++;
-            connection.Connected -= OnConnected;
-
-            if (_connectedCount == _connections.Count)
-            {
-                _cellCenter.SetActive(true);
-                _cellCenter.transform.localScale = Vector2.zero;
-                _cellCenter.transform.DOScale(Vector3.one, .5f).SetEase(Ease.OutCubic).OnComplete(() =>
-                {
-                    CellFilled?.Invoke(_pos);
-                });
-            }
         }
 
         public void ClearCell()
         {
-            if (_connectedCount == 0) return;
-
             Vector3 centerPos = _cellCenter.transform.position;
-            _connectedCount = 0;
             _cellCenter.SetActive(false);
+            _isFilled = false;
             for (int i = 0; i < _connections.Count; i++)
             {
-                _connections[i].Connected += OnConnected;
                 _connections[i].Reset(Vector3.Normalize(_connections[i].transform.position - centerPos));
             }
         }
 
-        public void CheckExistingConnections()
+        public bool CheckFillStatus()
         {
-            bool isFilledBefore = IsFilled;
+            bool isFilledBefore = _isFilled;
+            _isFilled = IsFilled;
 
-            _connectedCount = 0;
-            for (int i = 0; i < _connections.Count; i++) 
-            {
-                if (_connections[i].IsConnected)
-                    _connectedCount++;
-                else
-                {
-                    _connections[i].Connected -= OnConnected;
-                    _connections[i].Connected += OnConnected;
-                }
-                    
-            }
-
-            if (isFilledBefore && !IsFilled)
+            if (isFilledBefore && !_isFilled)
             {
                 _cellCenter.SetActive(false);
+                return false;
             }
+
+            if (!isFilledBefore && IsFilled)
+            {
+                _cellCenter.SetActive(true);
+                _cellCenter.transform.localScale = Vector2.zero;
+                _cellCenter.transform.DOScale(Vector3.one, .5f).SetEase(Ease.OutCubic);
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

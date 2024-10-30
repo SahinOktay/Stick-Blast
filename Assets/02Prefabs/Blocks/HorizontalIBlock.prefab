@@ -48,6 +48,9 @@ MonoBehaviour:
   nodePoints:
   - point1: {fileID: 4614077363923589999}
     point2: {fileID: 7648112299725841282}
+  connections:
+  - firstPoint: {x: 0, y: 0}
+    secondPoint: {x: 1, y: 0}
 --- !u!1001 &8654277801921964638
 PrefabInstance:
   m_ObjectHideFlags: 0

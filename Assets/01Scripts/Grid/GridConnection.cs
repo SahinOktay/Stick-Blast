@@ -48,7 +48,7 @@ public class GridConnection : MonoBehaviour
 
         float throwAnimDuraiton = 1f;
         connected.transform.DOMove(
-            connected.transform.position + direction * 2f,
+            connected.transform.position + direction * UnityEngine.Random.Range(1f, 2f),
             throwAnimDuraiton
         ).SetEase(Ease.OutCubic).OnComplete(() =>
         {
